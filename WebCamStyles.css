@@ -1,0 +1,17 @@
+.hover-container {
+    width: 100%;
+    position: relative;
+}
+.hover-item {
+    position: absolute;
+    top: 0;
+    z-index: 10;
+}
+.close-hover{
+    position: absolute;
+    top: 8px;
+    right: 10px;
+}
+.btn, .custom-select {
+    margin: 10px auto;
+}
