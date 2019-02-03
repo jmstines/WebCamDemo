@@ -1,55 +1,75 @@
-function HasImageDevices(){
-    return navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
+"use strict"
+function NoImageDevices() {
+	return !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia;
 }
 
-function PlayVideo(mediaDisplay, mediaDD){
-    if(HasImageDevices()) {
-        let sourceId = mediaDD[mediaDD.selectedIndex].value;
-        let option = {video : true, deviceId : sourceId}
-        navigator.mediaDevices.getUserMedia(option).then(function(stream) {
-            mediaDisplay.srcObject = stream;
-            mediaDisplay.play();
-            mediaDisplay.value = sourceId;
-        });
-    }
+function PlayVideo(mediaDisplay, options) {
+	return new Promise( (resolve, reject) => {
+		if (NoImageDevices()) reject("No Media Device found");
+	
+		navigator.mediaDevices.getUserMedia(options)
+		.then( stream => {
+			mediaDisplay.srcObject = stream;
+			mediaDisplay.play();
+			resolve("Display Image");
+		});
+	});
 }
 
-function SetMediaDevicesDD(select){
-    if (HasImageDevices() && select.tagName === "SELECT")  {
-        navigator.mediaDevices.enumerateDevices().then(function(devices){
-            devices.forEach(function(device){
-                let count = 1;
-                if (device.kind === 'videoinput'){
-                    const option = document.createElement("option");
-                    option.value = device.deviceId;
-                    option.text = device.label || "Video Input " + count;
-                    count++;
-                    select.add(option);
-                }
-            })
-        });
-    }
+function StopVideo(videoScreen){
+	return new Promise( (resolve, reject) => {
+		if (videoScreen === null) reject("Video source NOT found!!!");
+		if (videoScreen.srcObject === null) resolve("Video Stopped");
+
+		let tracks = videoScreen.srcObject.getTracks();
+		tracks.forEach(track => track.stop());
+		videoScreen.srcObject = null;
+		resolve("Video Stopped");
+	})
 }
 
-function ToggleHiddenElement(element){
-    if(element.hasAttribute("hidden")){
-        element.removeAttribute("hidden", false);
-    }
-    else{
-        element.setAttribute("hidden", true);
-    }
+function GetVideoDevices(){
+	return new Promise( (resolve, reject) => {
+		if (NoImageDevices()) reject("No Media Device found");
+	
+		let mediaDevices = [];
+		navigator.mediaDevices.enumerateDevices()
+		.then( devices => {
+			devices.forEach( device => {
+				if (device.kind === 'videoinput') {
+					mediaDevices.push(device);
+				}
+			})
+		resolve(mediaDevices);
+		})	
+	})
 }
 
-function CaptureImage(display, canvas){
-    let imageWidth = canvas.width;
-    let imageHeight = canvas.height;
-    const context = canvas.getContext('2d');
+function PreviewImage(image, canvas) {
+	return new Promise( (resolve, reject) => {
+		if(image === null) reject("File is NOT an Image.");
+		if(canvas === 'nothing') reject("Image render Area NOT found.")
 
-    context.drawImage(display, 0, 0, imageWidth, imageHeight);
+		let imageWidth = canvas.width;
+		let imageHeight = canvas.height;
+		const context = canvas.getContext('2d');
+
+		context.drawImage(image, 0, 0, imageWidth, imageHeight);
+		resolve();
+	})
 }
 
-function ToggleScreens(elements){
-    elements.forEach(element => {
-        ToggleHiddenElement(element);
-    });
+function TakePhoto(options){
+	return new Promise( (resolve, reject) => {
+	if (NoImageDevices()) reject("No Media Device found.");
+	if (options.video.deviceId === '') reject("SourceId NOT found.");
+
+	navigator.mediaDevices.getUserMedia(options)
+	.then(mediaStream => {
+		const track = mediaStream.getVideoTracks()[0];
+		let imageCapture = new ImageCapture(track);
+		imageCapture.takePhoto()
+		.then(blob => resolve(blob))
+	})
+	})
 }
