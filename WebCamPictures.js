@@ -70,23 +70,23 @@ function HideElement(element){
 }
 
 function SetImageFile(blob){
-    return new Promise( (resolve, reject) => {
-        if(blob.type.match('image/*') === false) 
-            return reject("File is NOT an Image.")
+    return new Promise((resolve, reject) => {
+        if (blob.type.match('image/*') === false)
+            return reject("File is NOT an Image.");
 
         imageFile = blob;
         resolve(imageFile);
-    })
+    });
 }
 
 function SetDeviceId(deviceId){
-    return new Promise( (resolve, reject) => {
-        if (deviceId === null || deviceId === '') 
-            return reject("Device Id NOT found")
+    return new Promise((resolve, reject) => {
+        if (deviceId === null || deviceId === '')
+            return reject("Device Id NOT found");
 
         mediaOptions.video.deviceId = deviceId;
         resolve();
-    })
+    });
 }
 
 function SetVideoDeviceDD(select, devices) {
@@ -97,41 +97,41 @@ function SetVideoDeviceDD(select, devices) {
             return reject("Device list empty");
     
         let count = 1;
-        devices.forEach(device => {            
-		    const option = document.createElement("option");
-		    option.value = device.deviceId;
-		    option.text = device.label || `Video Input ${count}`;
-		    count++;
-		    select.add(option);
-        })
+        devices.forEach(device => {
+            const option = document.createElement("option");
+            option.value = device.deviceId;
+            option.text = device.label || `Video Input ${count}`;
+            count++;
+            select.add(option);
+        });
         resolve();
     });
 }
 
 function GetSelectedDeviceId(option){
     return new Promise( (resolve, reject) => {
-        if (option === null) 
-            return reject(false, "Media Dropdown NOT found.")
+        if (option === null)
+            return reject(false, "Media Dropdown NOT found.");
         if (option.selectedIndex === 'nothing' || option.selectedIndex < 0)
-            return reject(false, "Select a Media Device.")
+            return reject(false, "Select a Media Device.");
 
         let index = option.selectedIndex;
-        let deviceId = option.options.item(index).value
+        let deviceId = option.options.item(index).value;
         resolve(deviceId);
     });
 }
 
 function SubmitImage(image){
     let oData = new FormData();
-    let fileName = image.name || "Photo"
-    oData.append(fileName, image)
+    let fileName = image.name || "Photo";
+    oData.append(fileName, image);
 
     let xhr = new XMLHttpRequest();
     xhr.open('Post', '/UploadImage', true);
     xhr.onload = () => {
         if (xhr.status !== 200) {
-            console.log("File NOT sent!!!")
+            console.log("File NOT sent!!!");
         }
-    xhr.send(oData);
-    }
+        xhr.send(oData);
+    };
 }
