@@ -5,7 +5,8 @@ function NoImageDevices() {
 
 function PlayVideo(mediaDisplay, options) {
 	return new Promise( (resolve, reject) => {
-		if (NoImageDevices()) reject("No Media Device found");
+		if (NoImageDevices())
+			return reject("No Media Device found");
 	
 		navigator.mediaDevices.getUserMedia(options)
 		.then( stream => {
@@ -18,9 +19,11 @@ function PlayVideo(mediaDisplay, options) {
 
 function StopVideo(videoScreen){
 	return new Promise( (resolve, reject) => {
-		if (videoScreen === null) reject("Video source NOT found!!!");
-		if (videoScreen.srcObject === null) resolve("Video Stopped");
-
+		if (videoScreen === null) 
+			return reject("Video source NOT found!!!");
+		if (videoScreen.srcObject === null) 
+			return resolve("Video Stopped");
+		
 		let tracks = videoScreen.srcObject.getTracks();
 		tracks.forEach(track => track.stop());
 		videoScreen.srcObject = null;
@@ -30,7 +33,8 @@ function StopVideo(videoScreen){
 
 function GetVideoDevices(){
 	return new Promise( (resolve, reject) => {
-		if (NoImageDevices()) reject("No Media Device found");
+		if (NoImageDevices()) 
+			return reject("No Media Device found");
 	
 		let mediaDevices = [];
 		navigator.mediaDevices.enumerateDevices()
@@ -47,8 +51,10 @@ function GetVideoDevices(){
 
 function PreviewImage(image, canvas) {
 	return new Promise( (resolve, reject) => {
-		if(image === null) reject("File is NOT an Image.");
-		if(canvas === 'nothing') reject("Image render Area NOT found.")
+		if(image === null) 
+			return reject("File is NOT an Image.");
+		if(canvas === 'nothing') 
+			return reject("Image render Area NOT found.")
 
 		let imageWidth = canvas.width;
 		let imageHeight = canvas.height;
@@ -61,8 +67,10 @@ function PreviewImage(image, canvas) {
 
 function TakePhoto(options){
 	return new Promise( (resolve, reject) => {
-	if (NoImageDevices()) reject("No Media Device found.");
-	if (options.video.deviceId === '') reject("SourceId NOT found.");
+	if (NoImageDevices()) 
+		return reject("No Media Device found.");
+	if (options.video.deviceId === '') 
+		return reject("SourceId NOT found.");
 
 	navigator.mediaDevices.getUserMedia(options)
 	.then(mediaStream => {

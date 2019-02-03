@@ -12,16 +12,19 @@
     right: 10px;
     z-index: 20;
 }
+ #saveImage {
+    right: 0;
+    position: absolute;
+}
 .btn, .custom-select {
     margin: 10px auto;
 }
-
 .media-screen-container{
     margin-left: auto;
     margin-right:  auto;
 }
-
 .image-screen{
     width: 640;
     height: 480;
+    position: relative
 }

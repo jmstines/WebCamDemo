@@ -5,6 +5,7 @@ const captureBtn = document.querySelector("#captureImage");
 const startVideoBtn = document.querySelector("#startVideo");
 const closeVideo = document.querySelector("#closeVideoScreen");
 const mediaDD = document.querySelector("#mediaDeviceDD");
+const saveImage = document.querySelector('#saveImage');
 
 let mediaOptions = {
     audio: false,
@@ -43,7 +44,11 @@ let imageFile;
         GetSelectedDeviceId(mediaDD)
         .then(sourceId => SetDeviceId(sourceId))
         .catch(error => console.log(`Media Dropdown NOT populated. Error: ${error}`));
-    })
+    });
+
+    saveImage.addEventListener('click', () => {
+        SubmitImage(imageFile);
+    });
 
     GetVideoDevices()
     .then(devices => SetVideoDeviceDD(mediaDD, devices))
@@ -66,7 +71,8 @@ function HideElement(element){
 
 function SetImageFile(blob){
     return new Promise( (resolve, reject) => {
-        if(blob.type.match('image/*') === false) reject("File is NOT an Image.")
+        if(blob.type.match('image/*') === false) 
+            return reject("File is NOT an Image.")
 
         imageFile = blob;
         resolve(imageFile);
@@ -75,7 +81,8 @@ function SetImageFile(blob){
 
 function SetDeviceId(deviceId){
     return new Promise( (resolve, reject) => {
-        if (deviceId === null || deviceId === '') reject("Device Id NOT found")
+        if (deviceId === null || deviceId === '') 
+            return reject("Device Id NOT found")
 
         mediaOptions.video.deviceId = deviceId;
         resolve();
@@ -84,8 +91,10 @@ function SetDeviceId(deviceId){
 
 function SetVideoDeviceDD(select, devices) {
     return new Promise( (resolve, reject) => {
-        if (select === null || select.tagName !== "SELECT") reject("Incorrect input Tag");
-        if (devices.length < 0) reject("Device list empty");
+        if (select === null || select.tagName !== "SELECT") 
+            return reject("Incorrect input Tag");
+        if (devices.length < 0) 
+            return reject("Device list empty");
     
         let count = 1;
         devices.forEach(device => {            
@@ -101,10 +110,11 @@ function SetVideoDeviceDD(select, devices) {
 
 function GetSelectedDeviceId(option){
     return new Promise( (resolve, reject) => {
-        if (option === null) reject(false, "Media Dropdown NOT found.")
-        if (option.selectedIndex === 'nothing' || option.selectedIndex < 0) {
-            reject(false, "Select a Media Device.")
-        }
+        if (option === null) 
+            return reject(false, "Media Dropdown NOT found.")
+        if (option.selectedIndex === 'nothing' || option.selectedIndex < 0)
+            return reject(false, "Select a Media Device.")
+
         let index = option.selectedIndex;
         let deviceId = option.options.item(index).value
         resolve(deviceId);
@@ -117,12 +127,9 @@ function SubmitImage(image){
     oData.append(fileName, image)
 
     let xhr = new XMLHttpRequest();
-    xhr.open('Post', '@Url.Action("UploadImage")', true);
+    xhr.open('Post', '/UploadImage', true);
     xhr.onload = () => {
-        if (xhr.status === 200) {
-
-        }
-        else{
+        if (xhr.status !== 200) {
             console.log("File NOT sent!!!")
         }
     xhr.send(oData);
