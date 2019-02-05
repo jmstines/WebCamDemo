@@ -1,11 +1,12 @@
 "use strict";
-const canvas = document.querySelector("#stillCavas");
-const imageScreen = document.querySelector("#videoScreen-container");
+const imageCanvas = document.querySelector("#stillCavas");
+const videoScreen = document.querySelector("#videoScreen");
+const videoScreenContainer = document.querySelector("#videoScreen-container");
 const captureBtn = document.querySelector("#captureImage");
 const startVideoBtn = document.querySelector("#startVideo");
-const closeVideo = document.querySelector("#closeVideoScreen");
+const closeVideoBtn = document.querySelector("#closeVideoScreen");
 const mediaDD = document.querySelector("#mediaDeviceDD");
-const saveImage = document.querySelector('#saveImage');
+const saveImageBtn = document.querySelector('#saveImage');
 
 let mediaOptions = {
 	audio: false,
@@ -19,34 +20,35 @@ let imageFile;
 		StopVideo(videoScreen)
 			.then(() => TakePhoto(mediaOptions))
 			.then(blob => SetImageFile(blob))
-			.then(imageFile => createImageBitmap(imageFile))
-			.then(image => PreviewImage(image, canvas))
-			.then(StopVideo(videoScreen))
-			.catch(error => console.log(`Photo NOT taken. Error: ${error}`));
+			.then(() => createImageBitmap(imageFile))
+			.then(image => PreviewImage(image, imageCanvas))
+			.catch(error => console.log(`Photo NOT taken. ${error}`));
 
-		HideElement(imageScreen);
+		StopVideo(videoScreen)
+		HideElement(videoScreenContainer);
 	});
 
 	startVideoBtn.addEventListener("click", () => {
 		StopVideo(videoScreen)
 			.then(() => PlayVideo(videoScreen, mediaOptions))
-			.then(() => ShowElement(imageScreen))
-			.catch(error => console.log(`Video NOT started. Error: ${error}`));
+			.then(() => ShowElement(videoScreenContainer))
+			.catch(error => console.log(`Video NOT started. ${error}`));
 	});
 
-	closeVideo.addEventListener("click", () => {
-		HideElement(imageScreen);
-		StopVideo(videoScreen)
-			.catch(error => console.log(`Video NOT stopped. Error: ${error}`));
+	closeVideoBtn.addEventListener("click", async () => {
+		HideElement(videoScreenContainer);
+
+		await StopVideo(videoScreen)
+			.catch(error => console.log(`Video NOT stopped. ${error}`));
 	});
 
 	mediaDD.addEventListener('change', () => {
 		GetSelectedDeviceId(mediaDD)
 			.then(sourceId => SetDeviceId(sourceId))
-			.catch(error => console.log(`Media Dropdown NOT populated. Error: ${error}`));
+			.catch(error => console.log(`Media Dropdown NOT populated. ${error}`));
 	});
 
-	saveImage.addEventListener('click', () => {
+	saveImageBtn.addEventListener('click', () => {
 		SubmitImage(imageFile);
 	});
 
@@ -54,7 +56,7 @@ let imageFile;
 		.then(devices => SetVideoDeviceDD(mediaDD, devices))
 		.then(() => GetSelectedDeviceId(mediaDD))
 		.then(sourceId => SetDeviceId(sourceId))
-		.catch(error => console.log(`Devices not found. Error: ${error}`));
+		.catch(error => console.log(`Devices not found. ${error}`));
 })();
 
 function ShowElement(element) {
@@ -69,60 +71,46 @@ function HideElement(element) {
 	}
 }
 
-function SetImageFile(blob) {
-	return new Promise((resolve, reject) => {
-		if (blob.type.match('image/*') === false)
-			reject("File is NOT an Image.");
-		else {
-			imageFile = blob;
-			resolve(imageFile);
-		}
-	});
+async function SetImageFile(blob) {
+	if (blob.type.match('image/*') === false) {
+		throw new Error("File is NOT an Image.");
+	}
+	imageFile = blob;
 }
 
 function SetDeviceId(deviceId) {
-	return new Promise((resolve, reject) => {
-		if (deviceId === null || deviceId === '')
-			reject("Device Id NOT found");
-		else {
-			mediaOptions.video.deviceId = deviceId;
-			resolve();
-		}
+	if (deviceId === null || deviceId === '') {
+		throw new Error("Device Id NOT found");
+	}
+	mediaOptions.video.deviceId = deviceId;
+}
+
+async function SetVideoDeviceDD(select, devices) {
+	if (select === null || select.tagName !== "SELECT") {
+		throw new Error("Incorrect input Tag");
+	}
+	if (devices.length < 0) {
+		throw new Error("Device list empty");
+	}
+	let count = 1;
+	await devices.forEach(device => {
+		const option = document.createElement("option");
+		option.value = device.deviceId;
+		option.text = device.label || `Video Input ${count}`;
+		count++;
+		select.add(option);
 	});
 }
 
-function SetVideoDeviceDD(select, devices) {
-	return new Promise((resolve, reject) => {
-		if (select === null || select.tagName !== "SELECT")
-			reject("Incorrect input Tag");
-		else if (devices.length < 0)
-			reject("Device list empty");
-		else {
-			let count = 1;
-			devices.forEach(device => {
-				const option = document.createElement("option");
-				option.value = device.deviceId;
-				option.text = device.label || `Video Input ${count}`;
-				count++;
-				select.add(option);
-			});
-			resolve();
-		}
-	});
-}
-
-function GetSelectedDeviceId(option) {
-	return new Promise((resolve, reject) => {
-		if (option === null)
-			reject(false, "Media Dropdown NOT found.");
-		else if (option.selectedIndex === 'nothing' || option.selectedIndex < 0)
-			reject(false, "Select a Media Device.");
-		else {
-			let index = option.selectedIndex;
-			let deviceId = option.options.item(index).value;
-			resolve(deviceId);
-		}
-	});
+async function GetSelectedDeviceId(option) {
+	if (option === null) {
+		throw new Error("Media Dropdown NOT found.");
+	}
+	if (option.selectedIndex === 'nothing' || option.selectedIndex < 0) {
+		throw new Error(false, "Select a Media Device.");
+	}
+	let index = option.selectedIndex;
+	return option.options.item(index).value;
 }
 
 function SubmitImage(image) {
