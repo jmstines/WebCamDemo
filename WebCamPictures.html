@@ -21,26 +21,26 @@
     </div>
     <div class="row justify-content-md-center">
       <div class="col-sm-8">
-        <form id="mediaContainer"  class="image-screen media-screen-container">
-            <button id="captureImage" type="button" class="btn btn-primary">Capture Image</button>
-            <div class="btn-group" role="group">   
-              <button id="startVideo" type="button" class="btn btn-primary" >Start Video</button>
-              <select id="mediaDeviceDD" class="custom-select btn-group" role="group"></select>
-            </div>
-            <button id="saveImage" type="submit" class="btn btn-primary">Save Image</button>
-            <div class="hover-container">
-              <canvas id="stillCavas" class="rounded image-screen"></canvas>
-              <div id="videoScreen-container" class="hover-item" hidden>
-                <button type="button" id="closeVideoScreen" class="close close-hover" >
-                  <span class="btn btn-sm btn-primary rounded">&times;</span>
-                </button>
-                <video id="videoScreen" autoplay="true" class="rounded"></video>
-              </div>
-            </div>
-            </form>
+        <form id="mediaContainer" class="image-screen media-screen-container">
+          <button id="captureImage" type="button" class="btn btn-primary">Capture Image</button>
+          <div class="btn-group" role="group">
+            <button id="startVideo" type="button" class="btn btn-primary">Start Video</button>
+            <select id="mediaDeviceDD" class="custom-select btn-group" role="group"></select>
           </div>
+          <button id="saveImage" type="submit" class="btn btn-primary">Save Image</button>
+          <div class="hover-container">
+            <canvas id="stillCavas" class="rounded image-screen"></canvas>
+            <div id="videoScreen-container" class="hover-item" hidden>
+              <button type="button" id="closeVideoScreen" class="close close-hover">
+                <span class="btn btn-sm btn-primary rounded">&times;</span>
+              </button>
+              <video id="videoScreen" autoplay="true" class="rounded"></video>
+            </div>
+          </div>
+        </form>
       </div>
     </div>
+  </div>
 
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
     crossorigin="anonymous"></script>
